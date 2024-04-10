@@ -158,10 +158,10 @@ UnitsSold table:
 | 2          | 2019-03-22    | 30    |
 +------------+---------------+-------+
 "
-# Write your MySQL query statement below
+-- Write your MySQL query statement below
 SELECT Prices.product_id, IFNULL(ROUND(SUM(Prices.price*UnitsSold.units)/SUM(UnitsSold.units),2),0) as average_price from Prices
 LEFT JOIN UnitsSold ON (Prices.product_id = UnitsSold.product_id AND (UnitsSold.purchase_date >= Prices.start_date AND UnitsSold.purchase_date <= Prices.end_date)) Group by product_id
-## Best solution
+-- Best solution
 
 select p.product_id, ifnull(round(sum(price*units)/sum(units),2),0) as average_price
 from Prices p left join UnitsSold u
@@ -205,7 +205,7 @@ ROUND((count(Register.user_id)/(
 from Register 
 JOIN Users ON Users.user_id = Register.user_id GROUP BY contest_id ORDER BY percentage desc,contest_id
 
-# Better Solution without JOIN 
+-- Better Solution without JOIN 
 select 
 contest_id, 
 round(count(distinct user_id) * 100 /(select count(user_id) from Users) ,2) as percentage
@@ -229,72 +229,8 @@ group by query_name
 --
 --1193. Monthly Transactions I
 
-"
-Transactions table:
-+------+---------+----------+--------+------------+
-| id   | country | state    | amount | trans_date |
-+------+---------+----------+--------+------------+
-| 121  | US      | approved | 1000   | 2018-12-18 |
-| 122  | US      | declined | 2000   | 2018-12-19 |
-| 123  | US      | approved | 2000   | 2019-01-01 |
-| 124  | DE      | approved | 2000   | 2019-01-07 |
-+------+---------+----------+--------+------------+
-Output: 
-+----------+---------+-------------+----------------+--------------------+-----------------------+
-| month    | country | trans_count | approved_count | trans_total_amount | approved_total_amount |
-+----------+---------+-------------+----------------+--------------------+-----------------------+
-| 2018-12  | US      | 2           | 1              | 3000               | 1000                  |
-| 2019-01  | US      | 1           | 1              | 2000               | 2000                  |
-| 2019-01  | DE      | 1           | 1              | 2000               | 2000                  |
-+----------+---------+-------------+----------------+--------------------+-----------------------+"
+SELECT DATE_FORMAT(trans_date, '%Y-%m') AS trans_month ,country as trans_count FROM Transactions
 
-SELECT DATE_FORMAT(trans_date, '%Y-%m') AS month ,
-country ,
-COUNT(*) AS trans_count,
-SUM(IF(state = 'approved', 1, 0)) AS approved_count,
-SUM(amount) as trans_total_amount,
-SUM(IF(state = 'approved', amount, 0)) as approved_total_amount FROM Transactions
-GROUP BY month, country
-
---1174. Immediate Food Delivery II
-"
-Delivery table:
-+-------------+-------------+------------+-----------------------------+
-| delivery_id | customer_id | order_date | customer_pref_delivery_date |
-+-------------+-------------+------------+-----------------------------+
-| 1           | 1           | 2019-08-01 | 2019-08-02                  |
-| 2           | 2           | 2019-08-02 | 2019-08-02                  |
-| 3           | 1           | 2019-08-11 | 2019-08-12                  |
-| 4           | 3           | 2019-08-24 | 2019-08-24                  |
-| 5           | 3           | 2019-08-21 | 2019-08-22                  |
-| 6           | 2           | 2019-08-11 | 2019-08-13                  |
-| 7           | 4           | 2019-08-09 | 2019-08-09                  |
-+-------------+-------------+------------+-----------------------------+
-Output: 
-+----------------------+
-| immediate_percentage |
-+----------------------+
-| 50.00                |
-+----------------------+
-
-delivery_id is the column of unique values of this table
-"
-
-
-SELECT CASE WHEN  `order_date` = `customer_pref_delivery_date` THEN "immediate"
-    ELSE "scheduled" END as status from Delivery
-"
-| status    |
-| --------- |
-| scheduled |
-| immediate |
-| scheduled |
-| immediate |
-| scheduled |
-| scheduled |
-| immediate |
-
-"
 
 Select 
     round(avg(order_date = customer_pref_delivery_date)*100, 2) as immediate_percentage
@@ -305,4 +241,16 @@ where (customer_id, order_date) in (
   group by customer_id
 );
 
--- 550. Game Play Analysis IV
+
+-- 550. Gampe play analysis IV
+SELECT (ROUND(COUNT(A1.player_id)/(SELECT COUNT(DISTINCT A3.player_id) FROM Activity A3),2)) AS fraction
+        from Activity A1
+    where 
+    (A1.player_id, DATE_SUB(A1.event_date, INTERVAL 1 DAY)) IN (
+        -- the sub query
+        SELECT A2.player_id, min(A2.event_date) from Activity A2 GROUP BY A2.player_id
+    )
+
+-- 1141. User Activity for the Past 30 Days I
+
+Select activity_date as day ,(count(distinct user_id)) as active_users from Activity where (activity_date > DATE_SUB("2019-07-27", INTERVAL 30 DAY) AND activity_date<= "2019-07-27") group by activity_date 
