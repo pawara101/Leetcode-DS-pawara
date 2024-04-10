@@ -254,3 +254,33 @@ SELECT (ROUND(COUNT(A1.player_id)/(SELECT COUNT(DISTINCT A3.player_id) FROM Acti
 -- 1141. User Activity for the Past 30 Days I
 
 Select activity_date as day ,(count(distinct user_id)) as active_users from Activity where (activity_date > DATE_SUB("2019-07-27", INTERVAL 30 DAY) AND activity_date<= "2019-07-27") group by activity_date 
+------ (sale_id, year) is the primary key
+
+SELECT product_id,year as first_year,quantity,price from Sales where (product_id,year) IN (
+    SELECT 
+  product_id, 
+  MIN(year) AS year 
+FROM 
+  Sales 
+GROUP BY 
+  product_id
+
+)
+
+-- 596. Classes More Than 5 Students
+
+SELECT class from Courses group by class having count(student)>=5 -- HAVING is used here
+
+
+-- 619. Biggest Single Number
+
+Select max(num) as num from (
+    select num from MyNumbers Group by num having count(*)=1
+) as test
+
+
+--
+select customer_id from Customer 
+group by 
+customer_id
+having count(distinct product_key) = (select count(product_key) from Product)
