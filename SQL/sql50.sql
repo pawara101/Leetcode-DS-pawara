@@ -66,6 +66,13 @@ JOIN course
   ON course.id = student_course.course_id;
 
 
+--
+SELECT orders.order_id, customers.customer_name, products.product_name
+FROM orders
+JOIN customers ON orders.customer_id = customers.customer_id
+JOIN products ON orders.product_id = products.product_id;
+
+
 
 -- Mysql Sub Query 
 SELECT 
@@ -284,3 +291,17 @@ select customer_id from Customer
 group by 
 customer_id
 having count(distinct product_key) = (select count(product_key) from Product)
+
+
+"Advaced Selects n=and joins"
+" use self join"
+SELECT column_name(s)
+FROM table1 T1, table1 T2
+WHERE condition;
+-- 1731. The Number of Employees Which Report to Each Employee
+
+FROM employees e1 JOIN employees e2 ON e1.reports_to = e2.employee_id
+
+select * FROM employees e1 JOIN employees e2 ON e1.reports_to = e2.employee_id
+
+select e2.employee_id,e2.name,count(e2.employee_id) as reports_count,ROUND(avg(e1.age)) as average_age FROM employees e1 JOIN employees e2 ON e1.reports_to = e2.employee_id group by e2.employee_id order by employee_id
