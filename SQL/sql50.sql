@@ -305,3 +305,30 @@ FROM employees e1 JOIN employees e2 ON e1.reports_to = e2.employee_id
 select * FROM employees e1 JOIN employees e2 ON e1.reports_to = e2.employee_id
 
 select e2.employee_id,e2.name,count(e2.employee_id) as reports_count,ROUND(avg(e1.age)) as average_age FROM employees e1 JOIN employees e2 ON e1.reports_to = e2.employee_id group by e2.employee_id order by employee_id
+
+-- 1327. List the Products Ordered in a Period
+with orders_feb as
+(select product_id,sum(unit) as unit from Orders 
+    where DATE_FORMAT(order_date, '%Y-%m') = '2020-02'
+    group by product_id order by unit desc)
+
+select p.product_name,
+        o.unit from orders_feb o join Products p 
+    on o.product_id=p.product_id 
+    where o.unit >= 100
+    order by unit desc
+
+
+-- 185. Department Top Three Salaries
+with employee_dept as (
+    select e.id,
+        e.name as Employee,
+        e.salary as Salary,
+        d.id as departmentId,
+        d.name Department from Employee e join Department d on
+    e.departmentId = d.id),
+-- select Salary,Employee, Department,Rank() over(partition by Department order by Salary desc) as sal_rank from employee_dept 
+ranked_salaries as
+(select Department,Employee,Salary,dense_rank() over(partition by Department order by Salary desc) as sal_rank from employee_dept )
+
+select Department,Employee,Salary from ranked_salaries where sal_rank<= 3 order by Salary desc,Department
